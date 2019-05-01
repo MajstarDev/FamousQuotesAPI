@@ -6,10 +6,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -80,4 +82,26 @@ class User
 
         return $this;
     }
+
+	/* implementing methods from UserInterface which we don't really need in our app */
+    public function getRoles()
+    {
+	return array('ROLE_USER');
+    }
+    public function getPassword()
+    {
+    }
+    public function getSalt()
+    {
+    }
+    public function getUsername()
+    {
+    }
+    public function isEnabled()
+    {
+    }
+    public function eraseCredentials()
+    {
+    }
+
 }
