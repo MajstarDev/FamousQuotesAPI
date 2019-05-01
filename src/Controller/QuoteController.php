@@ -24,15 +24,17 @@ class QuoteController extends FOSRestController
 	}
 
 	/**
-	* Returns all quotes for the current user
-	* @Rest\Get("/quotes")
+	* Returns all quotes for current user
+	* @Rest\Get("/quote")
 	*/
 	public function getQuotes(Security $security)
 	{
+		$quotes = $this->getDoctrine()->getRepository(Quote::class)->findBy(['user' => $this->user]);
 
-		
-
-		$view = $this->view(array('hey' => 'this url is protected and you are user ID=' . $this->user->getId()), Response::HTTP_OK);
+		$view = $this->view(array(
+			'status' => self::STATUS_OK,
+			'data' => $quotes
+		), Response::HTTP_OK);
 		return $this->handleView($view);
 	}
 
@@ -74,6 +76,49 @@ class QuoteController extends FOSRestController
 
 
 	/**
+	* Update quote
+	* @Rest\Post("/quote/{id}")
+	*/
+	public function updateQuoteAction(Request $request, $id)
+	{
+		$quote_author = trim($request->get('author'));
+		$text = trim($request->get('text'));
+
+		if (empty($quote_author) || empty($text))
+		{
+			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Either author or quote text is blank'), Response::HTTP_NOT_ACCEPTABLE);
+			return $this->handleView($view);
+		}
+
+		$quote = $this->getDoctrine()->getRepository(\App\Entity\Quote::class)->find($id);
+		if (empty($quote) || $quote->getUser()->getId() != $this->user->getId())
+		{
+			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Quote not found'), Response::HTTP_NOT_FOUND);
+		}
+		else
+		{
+			$em = $this->getDoctrine()->getManager();
+
+			$author = $this->getDoctrine()->getRepository(Author::class)->findOneBy(['name' => $quote_author]);
+			if (!$author)
+			{
+				$author = new Author();
+				$author->setName($quote_author);
+				$em->persist($author);
+			}
+
+			$quote->setAuthor($author);
+			$quote->setText($text);
+			$em->persist($quote);
+			$em->flush();
+
+			$view = $this->view(array('status' => self::STATUS_OK, 'message' => 'Quote updated'), Response::HTTP_OK);
+		}
+
+		return $this->handleView($view);
+	}
+
+	/**
 	* Delete quote
 	* @Rest\Delete("/quote/{id}")
 	*/
@@ -82,20 +127,15 @@ class QuoteController extends FOSRestController
 		$em = $this->getDoctrine()->getManager();
 
 		$quote = $this->getDoctrine()->getRepository(\App\Entity\Quote::class)->find($id);
-		if (empty($quote))
+		if (empty($quote) || $quote->getUser()->getId() != $this->user->getId())
 		{
 			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Quote not found'), Response::HTTP_NOT_FOUND);
-			
-		} 
-		elseif ($quote->getUser()->getId() != $this->user->getId())
-		{
-			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Invalid ID'), Response::HTTP_NOT_FOUND);
 		}
 		else
 		{
 			$em->remove($quote);
 			$em->flush();
-			$view = $this->view(array('status' => self::STATUS_OK, 'message' => 'Removed Successfully'), Response::HTTP_OK);
+			$view = $this->view(array('status' => self::STATUS_OK, 'message' => 'Quote removed'), Response::HTTP_OK);
 		}
 
 		return $this->handleView($view);

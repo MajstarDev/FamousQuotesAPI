@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\Response;
 use App\Entity\User;
 
 class UserController extends FOSRestController
@@ -22,7 +23,7 @@ class UserController extends FOSRestController
 		$em->persist($user);
 		$em->flush();
 
-		$view = $this->view(array('apiKey' => $user->getAccessKey()), 200);
+		$view = $this->view(array('status' => QuoteController::STATUS_OK, 'key' => $user->getAccessKey()), Response::HTTP_OK);
 		return $this->handleView($view);
 	}
 }
