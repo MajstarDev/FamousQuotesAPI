@@ -7,7 +7,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-#use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use App\Entity\Author;
 use App\Entity\Quote;
 
@@ -29,7 +28,7 @@ class QuoteController extends FOSRestController
 	*/
 	public function getQuotes(Security $security)
 	{
-		$quotes = $this->getDoctrine()->getRepository(Quote::class)->findBy(['user' => $this->user]);
+		$quotes = $this->getDoctrine()->getRepository(Quote::class)->getAll($this->user);
 
 		$view = $this->view(array(
 			'status' => self::STATUS_OK,

@@ -19,6 +19,17 @@ class QuoteRepository extends ServiceEntityRepository
         parent::__construct($registry, Quote::class);
     }
 
+	public function getAll($user)
+	{
+		return $this->createQueryBuilder('q')
+		->select(array('q.id', 'a.name', 'q.text'))
+		->innerJoin('q.author', 'a')
+		->andWhere('q.user = :user')
+		->setParameter('user', $user)
+		->getQuery()
+		->getArrayResult();
+	}
+
     // /**
     //  * @return Quote[] Returns an array of Quote objects
     //  */
