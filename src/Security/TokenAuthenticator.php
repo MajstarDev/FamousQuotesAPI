@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use App\Controller\QuoteController;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
@@ -74,6 +75,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         $data = [
+		'status' => QuoteController::STATUS_ERROR,
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
 
             // or to translate this message
