@@ -1,8 +1,8 @@
 # Quotes API
 
 Simple REST API to CRUD famous quotes. API responds in JSON format.
-Other than /key request, you *must* send "X-APIKEY" header with a valid API key to do anything.
-All requests return status = OK|Error upon completion. In case of error, error message will be returned (in 'message').
+Other than /key request, all requests *require* "X-APIKEY" HTTP header with a valid API key to do anything.
+status = OK|Error is returned with every request. In case of error, error message will be returned.
 
 The following operations are supported:
 
@@ -13,11 +13,9 @@ Generates and returns new API key. This request is available to public (anybody 
 No input params.
 
 Example output:
-
 ```
 {"status":"OK", "key":"269098bd10bb6d2123955e1d95d6073cd93a2b85"}
 ```
-
 ## GET /quote
 
 Returns list of all quotes for current user (identified by X-APIKEY header).
@@ -36,15 +34,34 @@ Example output:
             "id": 11,
             "name": "Andy Fletcher",
             "text": "I don't want anyone to feel obliged to hang out here thinking I'll hold it against you if you don't"
-        },
-        {
-            "id": 12,
-            "name": "Andy Fletcher",
-            "text": "None of it is about knowing some weird intricacy of Doctrine's hydration system or shit like that"
         }
     ]
 }
 ```
+## GET /quote/{id}
+
+Get quote by id. Example output:
+```
+{
+    "status": "OK",
+    "data": [
+        {
+            "id": 3,
+            "name": "William Shakespeare",
+            "text": "We know what we are, but know not what we may be."
+        }
+    ]
+}
+```
+
+or:
+```
+{"status": "Error", "message": "Quote not found"}
+```
+
+## GET /random
+
+Returns random quote from user's collection of quotes. Same response format as GET/quote/{id}
 
 ## POST /quote
 
@@ -65,11 +82,9 @@ Example error output #2:
 ```
 
 Example OK reponse:
-
 ```
 {"status":"OK","message":"Quote Added Successfully"}
 ```
-
 ## POST /quote/{id}
 
 Update quote identified by {id} where `id` is as seen in GET /quote output. If `id` doesn't below to currently authenticated user, you'll get not found error.
@@ -81,34 +96,31 @@ Input params:
 Example error output:
 
 ```
-{"status":"Error","message":"Quote not found"}
+{"status":"Error", "message":"Quote not found"}
 ```
 
 Example OK reponse:
 
 ```
-{"status":"OK","message":"Quote updated"}
+{"status":"OK", "message":"Quote updated"}
 ```
 
 ## DELETE /quote/{id}
 
-Delete quote identified by {id} where `id` can be found in GET /quote output.
+Delete quote identified by {id}.
 
 Example error output:
-
 ```
 {"status":"Error","message":"Quote not found"}
 ```
 
 Example OK reponse:
-
 ```
 {"status": "OK", "message": "Quote removed"}
 ```
-
 ## Live API URL
 
-API has been deployed to http://pavel.bootcamp.architechlabs.com:8000 so you can use [Postman]https://www.getpostman.com/downloads/ to play with it.
+API has been deployed to http://pavel.bootcamp.architechlabs.com:8000 so you can use Postman ( https://www.getpostman.com/downloads/ ) to play with it.
 
 ## Built With
 

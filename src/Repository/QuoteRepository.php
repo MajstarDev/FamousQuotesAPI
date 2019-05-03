@@ -14,10 +14,10 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class QuoteRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Quote::class);
-    }
+	public function __construct(RegistryInterface $registry)
+	{
+		parent::__construct($registry, Quote::class);
+	}
 
 	public function getAll($user)
 	{
@@ -26,6 +26,40 @@ class QuoteRepository extends ServiceEntityRepository
 		->innerJoin('q.author', 'a')
 		->andWhere('q.user = :user')
 		->setParameter('user', $user)
+		->getQuery()
+		->getArrayResult();
+	}
+
+	public function getQuoteById($user, $id)
+	{
+		return $this->createQueryBuilder('q')
+		->select(array('q.id', 'a.name', 'q.text'))
+		->innerJoin('q.author', 'a')
+		->andWhere('q.user = :user')
+		->setParameter('user', $user)
+		->andWhere('q.id = :id')
+		->setParameter('id', $id)
+		->getQuery()
+		->getArrayResult();
+	}
+
+	public function getRandomQuote($user)
+	{
+		$count = $this->createQueryBuilder('q')
+		->select('COUNT(q)')
+		->innerJoin('q.author', 'a')
+		->andWhere('q.user = :user')
+		->setParameter('user', $user)
+		->getQuery()
+		->getSingleScalarResult();
+
+		return $this->createQueryBuilder('q')
+		->select(array('q.id', 'a.name', 'q.text'))
+		->innerJoin('q.author', 'a')
+		->where('q.user = :user')
+		->setParameter('user', $user)
+		->setFirstResult(rand(0, $count - 1))
+		->setMaxResults(1)
 		->getQuery()
 		->getArrayResult();
 	}

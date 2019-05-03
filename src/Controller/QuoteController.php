@@ -73,6 +73,25 @@ class QuoteController extends FOSRestController
 		return $this->handleView($view);
 	}
 
+	/**
+	* Get quote by id
+	* @Rest\Get("/quote/{id}")
+	*/
+	public function getQuoteAction(Request $request, $id)
+	{
+		$quote = $this->getDoctrine()->getRepository(Quote::class)->getQuoteById($this->user, $id);
+
+		if (empty($quote))
+		{
+			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Quote not found'), Response::HTTP_NOT_FOUND);
+		}
+		else
+		{
+			$view = $this->view(array('status' => self::STATUS_OK, 'data' => $quote), Response::HTTP_OK);
+		}
+
+		return $this->handleView($view);
+	}
 
 	/**
 	* Update quote
@@ -135,6 +154,26 @@ class QuoteController extends FOSRestController
 			$em->remove($quote);
 			$em->flush();
 			$view = $this->view(array('status' => self::STATUS_OK, 'message' => 'Quote removed'), Response::HTTP_OK);
+		}
+
+		return $this->handleView($view);
+	}
+
+	/**
+	* Get random quote
+	* @Rest\Get("/random")
+	*/
+	public function getRandomQuoteAction(Request $request)
+	{
+		$quote = $this->getDoctrine()->getRepository(Quote::class)->getRandomQuote($this->user);
+
+		if (empty($quote))
+		{
+			$view = $this->view(array('status' => self::STATUS_ERROR, 'message' => 'Quote not found'), Response::HTTP_NOT_FOUND);
+		}
+		else
+		{
+			$view = $this->view(array('status' => self::STATUS_OK, 'data' => $quote), Response::HTTP_OK);
 		}
 
 		return $this->handleView($view);
